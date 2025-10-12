@@ -1,0 +1,36 @@
+﻿@using FirstApp.View.Components.Message
+@using FirstApp.View.Service
+
+@inherits LayoutComponentBase
+@inject NotificationService NotificationService
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+<Alert/>
+<Toast/>
+@* <Alert @ref="alertComponent" />
+<Toast @ref="toastComponent" />
+
+@code {
+    private Alert alertComponent;
+    private Toast toastComponent;
+
+    protected override void OnInitialized()
+    {
+        NotificationService.RegisterAlert(alertComponent);
+        NotificationService.RegisterToast(toastComponent);
+    }
+} *@

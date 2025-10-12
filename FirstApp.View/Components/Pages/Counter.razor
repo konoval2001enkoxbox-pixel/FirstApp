@@ -1,0 +1,75 @@
+﻿@page "/counter"
+@using FirstApp.View.Components.Layout
+@using FirstApp.View.Service
+@layout DocumentsLayout
+@inject NotificationService NotificationService
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        NotificationService.ShowAlert($"{currentCount}", "counter");
+    }
+}
+
+<h3>Render HTML from Variable</h3>
+
+<div>
+    @((MarkupString)rawHtml)
+</div>
+
+@code {
+    private string rawHtml = "<h1>Hello, World!</h1><p>This is a paragraph.</p>";
+}
+<h3>Date Picker Example</h3>
+
+        <InputDate id="dateInput" @bind-Value="dateSelected" class="form-control" />
+
+@if (dateSelected.HasValue)
+{
+    <p>Selected date: @dateSelected.Value.ToString("yyyy-MM-dd")</p>
+}
+
+@code {
+    private DateTime? dateSelected;
+
+    private void HandleValidSubmit()
+    {
+        // Handling the submission, e.g., displaying selected date
+        Console.WriteLine($"Selected date: {dateSelected}");
+    }
+}
+
+@code {
+    private List<string> options = new List<string>
+    {
+        "Option 1",
+        "Option 2",
+        "Option 3"
+    };
+
+    private string selectedOption;
+
+    private void OnChange(ChangeEventArgs e)
+    {
+        selectedOption = e.Value.ToString();
+        // Handle the selected option as needed
+    }
+}
+
+<select @onchange="OnChange">
+    <option value="">Select an option</option>
+    @foreach (var option in options)
+    {
+        <option value="@option">@option</option>
+    }
+</select>
+
+<p>Selected Option: @selectedOption</p>

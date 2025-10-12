@@ -1,0 +1,41 @@
+﻿@using FirstApp.View.Service
+@inject NotificationService NotificationService
+@code {
+    private bool isVisible = false;
+
+    public void Show(string message)
+    {
+        isVisible = true;
+        NotificationMessage = message;
+        InvokeAsync(StateHasChanged);
+
+        // Используем асинхронный метод для задержки
+        _ = ShowForDuration(2000);
+    }
+
+    private async Task ShowForDuration(int duration)
+    {
+        await Task.Delay(duration);
+        Hide();
+    }
+    private void Hide()
+    {
+        isVisible = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string NotificationMessage { get; set; }
+    protected override void OnInitialized()
+    {
+        NotificationService.RegisterToast(this);
+    }
+}
+
+@if (isVisible)
+{
+    <div class="toast-notification">
+        asdasdasdsdasdasd
+
+        @NotificationMessage
+    </div>
+}

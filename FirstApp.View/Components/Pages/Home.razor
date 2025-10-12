@@ -1,0 +1,27 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@implements IDisposable
+<script src="js/Home/Home.js"></script>
+
+<input type="text" id="daterange" />
+
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize the Date Range Picker
+            _=JSRuntime.InvokeVoidAsync("$('#daterange').daterangepicker()");
+        }
+    }
+
+    public void Dispose()
+    {
+        // Clean up resources if necessary
+    }
+}

@@ -1,0 +1,62 @@
+﻿@page "/Login/Login"
+@using FirstApp.View.Security
+@inject NavigationManager Navigation
+@inject IRepositoryMAUI Repository
+<h3>Login</h3>
+<h4>@Message</h4>
+<EditForm Model="loginModel" OnValidSubmit="LoginRequest">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="username">Username:</label>
+        <InputText id="username" @bind-Value="loginModel.Username" />
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <InputText id="password" type="password" @bind-Value="loginModel.Password" />
+    </div>
+
+    <button type="submit">Login</button>
+</EditForm>
+<button @onclick="SendQuery">GetData</button>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private string? errorMessage;
+    private string? token;
+
+    private async Task LoginRequest()
+    {
+        token = await Repository.Login.LoginRequest(loginModel.Username, loginModel.Password);
+        Storage.Set(Storage.TOKEN, token);
+        Message = token;
+        // Сохраните токен и переходите на защищенную страницу
+        // Navigation.NavigateTo("/home"); // Navigate to a different page
+
+    }
+
+    private async Task SendQuery()
+    {
+        try
+        {
+            Message = System.Text.Json.JsonSerializer.Serialize(await Repository.Weather.SendQuery(token));
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+        }
+        // Сохраните токен и переходите на защищенную страницу
+        // Navigation.NavigateTo("/home"); // Navigate to a different page
+
+    }
+
+    private class LoginModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    private string Message = null;
+
+}

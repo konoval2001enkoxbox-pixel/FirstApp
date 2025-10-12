@@ -1,0 +1,112 @@
+﻿@page "/weather"
+@using FirstApp.View.Components.Message
+@using FirstApp.View.Security
+@using FirstApp.View.Service
+@inject IRepositoryMAUI Repository
+@inject IJSRuntime JSRuntime
+@inject NotificationService NotificationService
+
+<script src="js/Weather/Weather.js"></script>
+@* <Alert @ref="notification" /> *@
+@* <Toast @ref="toast" /> *@
+
+<h1>Weather</h1>
+<h4>@Message</h4>
+
+<p>This component demonstrates showing data.</p>
+<button class="btn btn-primary" @onclick="RefreshData">Refresh</button>
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<WeatherForecast>? forecasts = null;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWeatherData();
+    }
+
+    private async Task LoadWeatherData()
+    {
+        forecasts = null;
+        try
+        {
+            forecasts = await Repository.Weather.SendQuery(Storage.Get(Storage.TOKEN));
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+        }
+        // forecasts = await Repository.Weather.OnInitializedAsync();
+
+
+        ShowToast(Message);
+        // _ = JSRuntime.InvokeVoidAsync("refreshWeather", forecasts?.Count);
+         ShowNotification($"{forecasts?.Count}");
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadWeatherData();
+    }
+    private string Message = null;
+}
+
+@* @code {
+    private Alert notification;
+
+    private void ShowNotification(string message)
+    {
+        notification.Show(message, "title");
+    }
+}
+
+@code {
+    private Toast toast;
+
+    private void ShowToast(string message)
+    {
+        toast.Show(message);
+    }
+} *@
+
+@code {
+
+    private void ShowNotification(string message)
+    {
+        NotificationService.ShowAlert(message, "title");
+    }
+}
+
+@code {
+
+    private void ShowToast(string message)
+    {
+        NotificationService.ShowToast(message);
+    }
+}
