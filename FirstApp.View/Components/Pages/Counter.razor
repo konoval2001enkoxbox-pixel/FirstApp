@@ -3,6 +3,7 @@
 @using FirstApp.View.Service
 @layout DocumentsLayout
 @inject NotificationService NotificationService
+@attribute [Authorize]
 <h1>Counter</h1>
 
 <p role="status">Current count: @currentCount</p>

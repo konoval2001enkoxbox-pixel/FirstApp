@@ -5,6 +5,8 @@
 @inject IRepositoryMAUI Repository
 @inject IJSRuntime JSRuntime
 @inject NotificationService NotificationService
+@inject AppData AppData
+@inject NavigationManager Navigation
 
 <script src="js/Weather/Weather.js"></script>
 @* <Alert @ref="notification" /> *@
@@ -15,6 +17,7 @@
 
 <p>This component demonstrates showing data.</p>
 <button class="btn btn-primary" @onclick="RefreshData">Refresh</button>
+<button class="btn btn-primary" @onclick="ShowClientInfo">ClientInfo</button>
 @if (forecasts == null)
 {
     <p><em>Loading...</em></p>
@@ -33,7 +36,7 @@ else
         <tbody>
             @foreach (var forecast in forecasts)
             {
-                <tr>
+                <tr @onclick="() => Info(forecast)">
                     <td>@forecast.Date.ToShortDateString()</td>
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
@@ -56,7 +59,8 @@ else
         forecasts = null;
         try
         {
-            forecasts = await Repository.Weather.SendQuery(Storage.Get(Storage.TOKEN));
+            // forecasts = await Repository.Weather.SendQuery(Storage.Get(Storage.TOKEN));
+            forecasts = await Repository.Weather.OnInitializedAsync();
         }
         catch (Exception ex)
         {
@@ -65,9 +69,9 @@ else
         // forecasts = await Repository.Weather.OnInitializedAsync();
 
 
-        ShowToast(Message);
+        // ShowToast(Message);
         // _ = JSRuntime.InvokeVoidAsync("refreshWeather", forecasts?.Count);
-         ShowNotification($"{forecasts?.Count}");
+        // ShowNotification($"{forecasts?.Count}");
     }
 
     private async Task RefreshData()
@@ -75,6 +79,19 @@ else
         await LoadWeatherData();
     }
     private string Message = null;
+
+    private void Info(WeatherForecast weatherForecast)
+    {
+        AppData.CurrentData = weatherForecast;
+        Navigation.NavigateTo("/weather/weatherInfo");
+        // ShowNotification($"{weatherForecast?.Summary}");
+    }
+
+    private void ShowClientInfo()
+    {
+        Navigation.NavigateTo("/clientInfo");
+        // ShowNotification($"{weatherForecast?.Summary}");
+    }
 }
 
 @* @code {

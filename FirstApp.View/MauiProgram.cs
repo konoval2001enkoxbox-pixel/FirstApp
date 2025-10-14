@@ -19,9 +19,10 @@ namespace FirstApp.View
                 });
 
             builder.Services.AddMauiBlazorWebView();
-
+            builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<IRepositoryMAUI, RepositoryMAUI>();
             builder.Services.AddSingleton<NotificationService>();
+            builder.Services.AddSingleton<AppData>();
 
             builder.Services.AddHttpClient("MyApi", client =>
             {

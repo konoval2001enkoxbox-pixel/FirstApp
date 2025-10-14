@@ -1,0 +1,27 @@
+﻿@page "/weather/weatherInfo"
+@using FirstApp.View.Components.Message
+@using FirstApp.View.Security
+@using FirstApp.View.Service
+@inject IRepositoryMAUI Repository
+@inject IJSRuntime JSRuntime
+@inject NotificationService NotificationService
+@inject AppData AppData
+@* <Alert @ref="notification" /> *@
+@* <Toast @ref="toast" /> *@
+
+<h1>Weather info</h1>
+@code {
+    WeatherForecast? forecast = null;
+    protected override void OnInitialized()
+    {
+        forecast = (WeatherForecast?)AppData.CurrentData;
+    }
+}
+@if (forecast is not null)
+{
+
+    <div>@forecast.Date.ToShortDateString()</div>
+    <div>@forecast.TemperatureC</div>
+    <div>@forecast.TemperatureF</div>
+    <div>@forecast.Summary</div>
+}
