@@ -3,6 +3,9 @@
 
 @inherits LayoutComponentBase
 @inject NotificationService NotificationService
+@inject NavigationManager Navigate
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProv
 
 <div class="page">
     <div class="sidebar">
@@ -11,7 +14,18 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+
+            <AuthorizeView>
+                <Authorized>
+                    <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">Bienvenido @context.User.Identity?.Name!</a>
+
+                </Authorized>
+                <NotAuthorized>
+                    <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+
+                </NotAuthorized>
+            </AuthorizeView>
+            <button @onclick="logout">exit</button>
         </div>
 
         <article class="content px-4">
@@ -34,3 +48,13 @@
         NotificationService.RegisterToast(toastComponent);
     }
 } *@
+@code{
+
+    async Task logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "Token");
+        await AuthStateProv.GetAuthenticationStateAsync();
+        Navigate.NavigateTo("/");
+    }
+
+}

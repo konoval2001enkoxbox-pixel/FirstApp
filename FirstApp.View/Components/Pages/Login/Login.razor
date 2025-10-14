@@ -2,6 +2,10 @@
 @using FirstApp.View.Security
 @inject NavigationManager Navigation
 @inject IRepositoryMAUI Repository
+@inject NavigationManager Navigate
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProv
+
 <h3>Login</h3>
 <h4>@Message</h4>
 <EditForm Model="loginModel" OnValidSubmit="LoginRequest">
@@ -30,6 +34,8 @@
     {
         token = await Repository.Login.LoginRequest(loginModel.Username, loginModel.Password);
         Storage.Set(Storage.TOKEN, token);
+        await JS.InvokeVoidAsync("localStorage.setItem", "Token", token);
+        await AuthStateProv.GetAuthenticationStateAsync();
         Message = token;
         // Сохраните токен и переходите на защищенную страницу
         // Navigation.NavigateTo("/home"); // Navigate to a different page

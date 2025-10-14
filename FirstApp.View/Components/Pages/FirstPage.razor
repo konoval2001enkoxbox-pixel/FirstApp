@@ -1,9 +1,23 @@
 ﻿@page "/"
+@using System.Security.Claims
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 <asd>asd</asd>
 @code {
-    protected override void OnInitialized()
+    private ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync()
     {
-        // Navigation.NavigateTo("/weather");
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+
+        if (!user.Identity.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/Login/Login");
+        }
+        else
+        {
+            Navigation.NavigateTo("/weather");
+        }
     }
 }

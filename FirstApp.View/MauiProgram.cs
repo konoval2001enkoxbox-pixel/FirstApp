@@ -2,6 +2,7 @@
 using FirstApp.Interface;
 using FirstApp.MAUIRepository;
 using FirstApp.View.Service;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace FirstApp.View
@@ -20,6 +21,8 @@ namespace FirstApp.View
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddAuthorizationCore();
+            builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+
             builder.Services.AddScoped<IRepositoryMAUI, RepositoryMAUI>();
             builder.Services.AddSingleton<NotificationService>();
             builder.Services.AddSingleton<AppData>();
