@@ -1,0 +1,183 @@
+﻿@page "/scroll"
+@* <p>direction @_swipeDirection</p>
+<SwipeAerea OnSwipe="OnSwipe" Class="h-100 pt-1" Style="border:1px solid;">
+    <div class="swipe-container">
+        <div class="area active area1">block1</div>
+        <div class="area area2">block2</div>
+    </div>
+</SwipeAerea>
+@code {
+    private SwipeDirection _swipeDirection = SwipeDirection.None;
+    private void OnSwipe(SwipeDirection swipeDirection)
+    {
+        _swipeDirection = swipeDirection;
+        StateHasChanged();
+    }
+} *@
+@page "/photoscroller"
+@using Microsoft.AspNetCore.Components.Web
+@inject IJSRuntime JSRuntime
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #000;
+    }
+
+    .scroller {
+        display: flex;
+        height: 100vh;
+        transition: transform 0.3s ease;
+        width: 100%;
+    }
+
+    .photo {
+        flex: 0 0 100%;
+        height: 100%; 
+        width: 100vw; 
+        background-color: gray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3em;
+        color: white;
+        opacity: 0.8;
+        transition: opacity 0.5s;
+        border:1px solid green;
+    }
+
+    .photo.active {
+        opacity: 1;
+    }
+
+    .photo1 {
+        background-image: url('https://via.placeholder.com/800x600/FF5733/FFFFFF?text=Photo+1');
+        background-size: cover;
+    }
+
+    .photo2 {
+        background-image: url('https://via.placeholder.com/800x600/33FF57/FFFFFF?text=Photo+2');
+        background-size: cover;
+    }
+
+    .photo3 {
+        background-image: url('https://via.placeholder.com/800x600/3357FF/FFFFFF?text=Photo+3');
+        background-size: cover;
+    }
+</style>
+<div style="color:white">
+    @changed
+</div>
+<div class="scroller" @ref="scroller"
+     @ontouchstart="HandleTouchStart"
+     @ontouchmove="HandleTouchMove"
+     @ontouchend="HandleTouchEnd"
+     @onmousedown="HandleMouseDown"
+     @onmousemove="HandleMouseMove"
+     @onmouseup="HandleMouseUp">
+    @foreach (var photo in photos)
+    {
+        <div class="photo @photo.Class @(photo.Index == currentPhotoIndex ? "active" : "")">
+            @photo.Text
+        </div>
+    }
+</div>
+
+@code {
+    private int currentPhotoIndex = 0;
+    private List<Photo> photos = new List<Photo>
+    {
+        new Photo { Class = "photo1", Text = "Photo 1", Index = 0 },
+        new Photo { Class = "photo2", Text = "Photo 2", Index = 1 },
+        new Photo { Class = "photo3", Text = "Photo 3", Index = 2 }
+    };
+
+    private ElementReference scroller;
+    private double startX;
+    private bool isDragging = false;
+    private string changed = "";
+
+    // Touch event handlers
+    private void HandleTouchStart(TouchEventArgs e)
+    {
+        if (e.Touches.Length > 0)
+        {
+            isDragging = true;
+            startX = e.Touches[0].ClientX; // Store starting X position
+        }
+    }
+
+    private void HandleTouchMove(TouchEventArgs e)
+    {
+        if (isDragging && e.ChangedTouches.Length > 0)
+        {
+            double direction = e.ChangedTouches[0].ClientX - startX; // Calculate movement offset
+            UpdateScrollerTransform(direction); // Update visual position
+        }
+    }
+
+    private void HandleTouchEnd(TouchEventArgs e)
+    {
+        if (isDragging && e.ChangedTouches.Length > 0)
+        {
+            FinishingTouch(e.ChangedTouches[0].ClientX);
+        }
+    }
+
+    // Mouse event handlers
+    private void HandleMouseDown(MouseEventArgs e)
+    {
+        isDragging = true;
+        startX = e.ClientX; // Store starting X position
+    }
+
+    private void HandleMouseMove(MouseEventArgs e)
+    {
+        if (isDragging)
+        {
+            double direction = e.ClientX - startX; // Calculate movement offset
+            UpdateScrollerTransform(direction); // Update visual position
+        }
+    }
+
+    private void HandleMouseUp(MouseEventArgs e)
+    {
+        if (isDragging)
+        {
+            FinishingTouch(e.ClientX);
+        }
+    }
+
+    private void FinishingTouch(double finalX)
+    {
+        double direction = finalX - startX; // Calculate final movement
+
+        // Determine whether to move to the next or previous photo based on swiping distance
+        if (direction < -100 && currentPhotoIndex < photos.Count - 1)
+        {
+            currentPhotoIndex++; // Move to the next photo
+        }
+        else if (direction > 100 && currentPhotoIndex > 0)
+        {
+            currentPhotoIndex--; // Move to the previous photo
+        }
+
+        // Reset scroller position
+        UpdateScrollerTransform(0); // Snap to final position
+        isDragging = false;
+    }
+    private void UpdateScrollerTransform(double direction)
+    {
+        // Send current photo index and direction to JavaScript for transformation calculation
+        JSRuntime.InvokeVoidAsync("calculateTransformAndApply", scroller, currentPhotoIndex, direction);
+    }
+
+
+    public class Photo
+    {
+        public string Class { get; set; }
+        public string Text { get; set; }
+        public int Index { get; set; }
+    }
+}
